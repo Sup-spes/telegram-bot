@@ -18,8 +18,9 @@ MINES_IMAGES_FOLDER = os.path.join(IMAGE_FOLDER, "mines")
 FONT_PATH = "arialbd.ttf"
 DB_NAME = "users.db"
 ADMINS = [6205472542, 1244177716]  # ID администраторов
+RENDER = true
 PORT = int(os.environ.get("PORT", 8443))
-WEBHOOK_URL = f"https://your-bot-name.onrender.com"
+WEBHOOK_URL = f"https://telegram-bot-3cdg.onrender.com"
 
 # Цветовая схема 1WIN
 COLORS = {
@@ -821,13 +822,21 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_id))
     app.add_handler(CallbackQueryHandler(handle_admin_decision, pattern=r'^(approve|reject)_\d+_\d+$'))
     app.add_handler(CallbackQueryHandler(get_signal_handler, pattern='^get_signal$'))
-    app.add_handler(CallbackQueryHandler(button_handler))  
+    app.add_handler(CallbackQueryHandler(button_handler))
     
-    print("Бот запущен! 🚀")
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=BOT_TOKEN,
-        webhook_url=WEBHOOK_URL
-    )
+    # Определение режима работы
+    if os.environ.get('RENDER'):
+        # Режим webhook для Render
+        print("Бот запущен в webhook режиме! 🚀")
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=BOT_TOKEN,
+            webhook_url=WEBHOOK_URL,
+            secret_token='YOUR_SECRET_TOKEN'  # Добавьте секретный токен для безопасности
+        )
+    else:
+        # Режим polling для локальной разработки
+        print("Бот запущен в polling режиме! 🚀")
+        app.run_polling()
     
