@@ -1,13 +1,23 @@
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto
+from apscheduler.schedulers.background import BackgroundScheduler
+import requests
 import os
 import random
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import io
 import math
 import sqlite3
+import logging
 from datetime import datetime
 from contextlib import contextmanager
+
+# Настройка логгирования
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 # Константы
 BOT_TOKEN = "7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
@@ -176,6 +186,28 @@ def update_user(user_id, registered=None, deposit=None, approved=None, win_id=No
 
 # Создаем папку для изображений
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
+
+def keep_alive():
+    """Функция для поддержания активности бота"""
+    try:
+        if RENDER:
+            # Отправляем запрос к самому себе, чтобы предотвратить засыпание
+            requests.get(f"https://{WEBHOOK_URL.split('//')[1]}/keepalive")
+        logger.info("Keep-alive triggered")
+    except Exception as e:
+        logger.error(f"Keep-alive error: {e}")
+
+async def log_activity(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Логирование активности пользователей"""
+    user_id = update.effective_user.id if update.effective_user else None
+    message = update.message.text if update.message else None
+    callback = update.callback_query.data if update.callback_query else None
+    
+    logger.info(
+        f"User activity - ID: {user_id}, "
+        f"Message: {message}, "
+        f"Callback: {callback}"
+    )
 
 def generate_gradient(width: int, height: int, start_color: tuple, end_color: tuple, horizontal: bool = False) -> Image.Image:
     """Генератор градиентного фона"""
@@ -810,13 +842,14 @@ async def get_signal_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     )
 
 
-if __name__ == "__main__":  
+if __name__ == "__main__":
     init_db()  # Инициализация БД
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     
     # Добавляем обработчики команд
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("moderate", moderate))
+    app.add_handler(CommandHandler("keepalive", lambda u, c: None))  # Добавляем пустой обработчик для keepalive
     
     # Обработчики сообщений и callback-ов
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_user_id))
@@ -824,19 +857,30 @@ if __name__ == "__main__":
     app.add_handler(CallbackQueryHandler(get_signal_handler, pattern='^get_signal$'))
     app.add_handler(CallbackQueryHandler(button_handler))
     
+    # Добавляем обработчики логов (должны быть последними)
+    app.add_handler(MessageHandler(filters.ALL, log_activity), group=1)
+    app.add_handler(CallbackQueryHandler(log_activity), group=1)
+    
+    # Запуск keep-alive механизма
+    if RENDER:
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(keep_alive, 'interval', minutes=14)
+        scheduler.start()
+        logger.info("Keep-alive scheduler started")
+    
     # Определение режима работы
-    if os.environ.get('RENDER'):
+    if RENDER:
         # Режим webhook для Render
-        print("Бот запущен в webhook режиме! 🚀")
+        logger.info("Бот запущен в webhook режиме! 🚀")
         app.run_webhook(
             listen="0.0.0.0",
             port=PORT,
             url_path=BOT_TOKEN,
             webhook_url=WEBHOOK_URL,
-            secret_token='YOUR_SECRET_TOKEN'  # Добавьте секретный токен для безопасности
+            drop_pending_updates=True
         )
     else:
         # Режим polling для локальной разработки
-        print("Бот запущен в polling режиме! 🚀")
+        logger.info("Бот запущен в polling режиме! 🚀")
         app.run_polling()
     
