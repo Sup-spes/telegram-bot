@@ -18,6 +18,8 @@ MINES_IMAGES_FOLDER = os.path.join(IMAGE_FOLDER, "mines")
 FONT_PATH = "arialbd.ttf"
 DB_NAME = "users.db"
 ADMINS = [6205472542, 1244177716]  # ID администраторов
+PORT = int(os.environ.get("PORT", 8443))
+WEBHOOK_URL = f"https://your-bot-name.onrender.com"
 
 # Цветовая схема 1WIN
 COLORS = {
@@ -822,4 +824,10 @@ if __name__ == "__main__":
     app.add_handler(CallbackQueryHandler(button_handler))  
     
     print("Бот запущен! 🚀")
-    app.run_polling()
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=BOT_TOKEN,
+        webhook_url=WEBHOOK_URL
+    )
+    
