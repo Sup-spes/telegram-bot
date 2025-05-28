@@ -18,7 +18,7 @@ MINES_IMAGES_FOLDER = os.path.join(IMAGE_FOLDER, "mines")
 FONT_PATH = "arialbd.ttf"
 DB_NAME = "users.db"
 ADMINS = [6205472542, 1244177716]  # ID администраторов
-RENDER = true
+RENDER = True
 PORT = int(os.environ.get("PORT", 8443))
 WEBHOOK_URL = f"https://telegram-bot-3cdg.onrender.com"
 
