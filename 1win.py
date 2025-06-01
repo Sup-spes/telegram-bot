@@ -1,5 +1,5 @@
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputMediaPhoto, Update
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 import os
@@ -12,7 +12,6 @@ import logging
 from telegram import Bot  
 from datetime import datetime
 from contextlib import contextmanager
-from flask import Flask, request
 
 # Настройка логгирования
 logging.basicConfig(
@@ -845,15 +844,7 @@ async def get_signal_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         reply_markup=game_selection_keyboard()
     )
     
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    if request.headers.get('content-type') == 'application/json':
-        json_str = request.get_data().decode('UTF-8')
-        update = telebot.types.Update.de_json(json_str)
-        bot.process_new_updates([update])
-        return 'OK', 200
-    else:
-        return 'Invalid content type', 403
+
 
 if __name__ == "__main__":
     init_db()  # Инициализация БД
