@@ -2,14 +2,13 @@ services:
   - type: web
     name: telegram-bot
     env: python
-    plan: free
+    plan: starter  # ← ВОТ ЭТО ВАЖНО, а не "free"
     buildCommand: pip install -r requirements.txt
-    startCommand: python bot.py
-    autoDeploy: True
+    startCommand: python 1win.py
+    autoDeploy: true
     envVars:
       - key: BOT_TOKEN
         value: "7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
       - key: WEBHOOK_URL
-        value: "https://telegram-bot-8wrz.onrender.com"
-    ports:
-      - port: 8443
+        value: "https://telegram-bot-meaz.onrender.com/webhook"
+
