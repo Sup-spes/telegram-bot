@@ -9,7 +9,7 @@ import io
 import math
 import sqlite3
 import logging
-import telebot
+from telegram import Bot  
 from datetime import datetime
 from contextlib import contextmanager
 from flask import Flask, request
