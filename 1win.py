@@ -33,7 +33,7 @@ DB_NAME = "users.db"
 ADMINS = [6205472542, 1244177716]  # ID администраторов
 RENDER = True
 PORT = int(os.environ.get("PORT", 10000))
-WEBHOOK_URL = f"https://telegram-bot-jxqd.onrender.com/7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
+WEBHOOK_URL = "https://your-bot-name.onrender.com/" + BOT_TOKEN
 
 # Цветовая схема 1WIN
 COLORS = {
