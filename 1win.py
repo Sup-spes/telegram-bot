@@ -9,8 +9,10 @@ import io
 import math
 import sqlite3
 import logging
+import telebot
 from datetime import datetime
 from contextlib import contextmanager
+from flask import Flask, request
 
 # Настройка логгирования
 logging.basicConfig(
@@ -18,6 +20,10 @@ logging.basicConfig(
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
+BOT_TOKEN = os.environ['BOT_TOKEN']
+bot = telebot.TeleBot(BOT_TOKEN)
+app = Flask(__name__)
 
 # Константы
 BOT_TOKEN = "7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
@@ -840,7 +846,16 @@ async def get_signal_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         "🎮 Выберите игру для получения сигнала:",
         reply_markup=game_selection_keyboard()
     )
-
+    
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_str = request.get_data().decode('UTF-8')
+        update = telebot.types.Update.de_json(json_str)
+        bot.process_new_updates([update])
+        return 'OK', 200
+    else:
+        return 'Invalid content type', 403
 
 if __name__ == "__main__":
     init_db()  # Инициализация БД
