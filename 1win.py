@@ -21,9 +21,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.environ['BOT_TOKEN']
-bot = telebot.TeleBot(BOT_TOKEN)
-app = Flask(__name__)
+
 
 # Константы
 BOT_TOKEN = "7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
