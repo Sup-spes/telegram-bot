@@ -877,14 +877,14 @@ if __name__ == "__main__":
         # Режим webhook для Render
         logger.info("Бот запущен в webhook режиме! 🚀")
         app.run_webhook(
-            listen="0.0.0.0",
+            listen="127.0.0.1",
             port=PORT,
             url_path=BOT_TOKEN,
             webhook_url=WEBHOOK_URL,
             drop_pending_updates=True
         )
-    else:
+    #else:
         # Режим polling для локальной разработки
-        logger.info("Бот запущен в polling режиме! 🚀")
-        app.run_polling()
+        #logger.info("Бот запущен в polling режиме! 🚀")
+        #app.run_polling()
     
