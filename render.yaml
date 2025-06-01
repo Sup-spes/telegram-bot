@@ -10,5 +10,5 @@ services:
       - key: BOT_TOKEN
         value: "7927368928:AAFwiYztldKI3o6PMQtQWsQdfpVP69yAeUM"
       - key: WEBHOOK_URL
-        value: "https://telegram-bot-meaz.onrender.com/webhook"
+        value: "https://telegram-bot-jxqd.onrender.com"
 
